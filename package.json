@@ -1,0 +1,19 @@
+{
+  "name": "slothpics",
+  "version": "1.0.0",
+  "description": "An API end-point that provides pictures of sloths",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kyle Tomanelli",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.686.0",
+    "dotenv": "^8.2.0",
+    "g-i-s": "^2.1.5",
+    "image-downloader": "^4.0.1",
+    "mongodb": "^3.5.8",
+    "node-base64-image": "^2.0.1"
+  }
+}
