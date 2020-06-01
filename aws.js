@@ -1,4 +1,5 @@
 require('dotenv').config();
+const fs = require('fs');
 const AWS = require('aws-sdk');
 
 if (!AWS.config.region) {
@@ -17,34 +18,62 @@ const s3 = new AWS.S3({
   apiVersion: '2006-03-01',
   params: { Bucket: bucketName },
 });
-function getLabels(imgString) {
+function getLabels(s3Name) {
   const params = {
     Image: {
-      Bytes: imgString,
+      S3Object: {
+        Bucket: 'sloths',
+        Name: s3Name,
+      },
     },
-    MaxLabels: 10,
-    MinConfidence: 75,
   };
   rekognition.detectLabels(params, (err, data) => {
     if (err) console.log(err);
     else console.log(data);
   });
 }
-s3.listObjects({ Delimiter: '/' }, (err, data) => {
-  if (err) console.log(err);
-  else console.log(data);
-});
+// s3.listObjects({ Delimiter: '/' }, (err, data) => {
+//   if (err) console.log(err);
+//   else console.log(data);
+// });
 
-function uploadPics() {
-  const albumPhotosKey = `${encodeURIComponent('potentialsloths')}//`;
-  const upload = new AWS.S3.ManagedUpload({
-    params: {
-      Bucket: bucketName,
-      Key: photoKey,
-      Body: file,
-      ACL: 'public-read',
-    },
+function uploadPic(filePath, confirmed = false) {
+  const uniqeName = Date.now();
+  const fileContent = fs.readFileSync(filePath);
+  let albumPhotosKey = '';
+  if (confirmed) {
+    albumPhotosKey = `${encodeURIComponent('confirmedsloths')}/`;
+  }
+  const params = {
+    Bucket: bucketName,
+    Key: `${albumPhotosKey}${uniqeName}.jpg`,
+    Body: fileContent,
+  };
+  return new Promise((resolve, reject) => {
+    s3.upload(params, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      console.log(`File uploaded successfully.`);
+      return resolve(uniqeName);
+    });
+  });
+}
+function getObj(s3Name, confirmed = false) {
+  let albumPhotosKey = '';
+
+  if (confirmed) {
+    albumPhotosKey = `${encodeURIComponent('confirmedsloths')}/`;
+  }
+  const params = {
+    Bucket: bucketName,
+    Key: `${albumPhotosKey}${s3Name}`,
+  };
+  s3.getObject(params, (err, data) => {
+    if (err) {
+      console.log(err);
+    } else console.log(data);
   });
 }
 
-module.exports = { getLabels };
+module.exports = { getLabels, uploadPic, getObj };

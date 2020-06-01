@@ -17,10 +17,11 @@ function downloadImage(url, dest) {
     url,
     dest,
   };
-  download
+  return download
     .image(options)
     .then(({ filename }) => {
       console.log('Saved to', filename); // saved to /path/to/dest/image.jpg
+      return true;
     })
     .catch(err => console.error(err));
 }
@@ -56,4 +57,4 @@ async function decode(str, fname, ext = 'jpg') {
 // }
 
 // start();
-module.exports = { collectSloths, downloadAndEncode, decode };
+module.exports = { collectSloths, downloadImage };
