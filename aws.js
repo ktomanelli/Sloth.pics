@@ -1,6 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const AWS = require('aws-sdk');
+const db = require('./db');
 
 if (!AWS.config.region) {
   AWS.config.update({
@@ -18,6 +19,44 @@ const s3 = new AWS.S3({
   apiVersion: '2006-03-01',
   params: { Bucket: bucketName },
 });
+function deleteObj(s3Name) {
+  const params = {
+    Bucket: bucketName,
+    Key: s3Name,
+  };
+  return new Promise((resolve, reject) => {
+    s3.deleteObject(params, (err, data) => {
+      if (err) reject(err);
+      else resolve('Deleted Duplicate');
+    });
+  });
+}
+function copyObj(s3Name) {
+  const params = {
+    Bucket: bucketName,
+    CopySource: `${bucketName}/${s3Name}`,
+    Key: `confirmedsloths/${s3Name}`,
+  };
+  return new Promise((resolve, reject) => {
+    s3.copyObject(params, (err, data) => {
+      if (err) reject(err);
+      else resolve('Copied Object');
+    });
+  });
+}
+
+function checkIfSloth(data, sloth) {
+  const labels = data.Labels;
+  for (let i = 0; i < labels.length; i += 1) {
+    if (labels[i].Name === 'Sloth' && labels[i].Confidence > 75) {
+      sloth.labels = labels;
+      db.appendDb(sloth);
+      return true;
+    }
+  }
+  return false;
+}
+
 function getLabels(s3Name) {
   const params = {
     Image: {
@@ -27,9 +66,11 @@ function getLabels(s3Name) {
       },
     },
   };
-  rekognition.detectLabels(params, (err, data) => {
-    if (err) console.log(err);
-    else console.log(data);
+  return new Promise((resolve, reject) => {
+    rekognition.detectLabels(params, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
   });
 }
 // s3.listObjects({ Delimiter: '/' }, (err, data) => {
@@ -37,16 +78,12 @@ function getLabels(s3Name) {
 //   else console.log(data);
 // });
 
-function uploadPic(filePath, confirmed = false) {
+function uploadPic(filePath) {
   const uniqeName = Date.now();
   const fileContent = fs.readFileSync(filePath);
-  let albumPhotosKey = '';
-  if (confirmed) {
-    albumPhotosKey = `${encodeURIComponent('confirmedsloths')}/`;
-  }
   const params = {
     Bucket: bucketName,
-    Key: `${albumPhotosKey}${uniqeName}.jpg`,
+    Key: `${uniqeName}.jpg`,
     Body: fileContent,
   };
   return new Promise((resolve, reject) => {
@@ -76,4 +113,11 @@ function getObj(s3Name, confirmed = false) {
   });
 }
 
-module.exports = { getLabels, uploadPic, getObj };
+module.exports = {
+  getLabels,
+  uploadPic,
+  getObj,
+  checkIfSloth,
+  copyObj,
+  deleteObj,
+};
