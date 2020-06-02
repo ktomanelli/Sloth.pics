@@ -4,7 +4,8 @@
   "description": "An API end-point that provides pictures of sloths",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node http.js"
   },
   "author": "Kyle Tomanelli",
   "license": "ISC",
