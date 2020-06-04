@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { MongoClient } = require('mongodb');
-const aws = require('./aws');
 
 const url = process.env.MONGODB_URL;
 
@@ -50,21 +49,15 @@ function getRandom(req, res, next) {
     db.collection('documents')
       .aggregate([{ $sample: { size: 1 } }])
       .forEach(doc =>
-        res.status(200).send(
-          `
-            <style>
-            img{
-              height:100%;
-            }
-            </style>
-            <img src = 'https://sloths.s3.amazonaws.com/confirmedsloths/${doc.s3Name.toString()}'>
-            `
-        )
+        res.status(200).send({
+          url: `https://sloths.s3.amazonaws.com/confirmedsloths/${doc.s3Name.toString()}`,
+          width: doc.width,
+          height: doc.height,
+          labels: doc.labels,
+        })
       );
   });
   next();
 }
-
-// getRandom();
 
 module.exports = { appendDb, getRandom };

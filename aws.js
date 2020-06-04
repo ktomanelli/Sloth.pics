@@ -73,10 +73,6 @@ function getLabels(s3Name) {
     });
   });
 }
-// s3.listObjects({ Delimiter: '/' }, (err, data) => {
-//   if (err) console.log(err);
-//   else console.log(data);
-// });
 
 function uploadPic(filePath) {
   const uniqeName = Date.now();
