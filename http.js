@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
   res.sendFile(`${__dirname}/public/index.html`);
 });
 app.get('/api', (req, res, next) => {});
-app.get('/apidoc', (req, res) => {
-  res.sendFile(`${__dirname}/public//apidoc.html`);
+app.get('/documentation', (req, res) => {
+  res.sendFile(`${__dirname}/public/apidoc.html`);
 });
 app.listen(port);
