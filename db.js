@@ -50,7 +50,7 @@ function getRandom(req, res, next) {
       .aggregate([{ $sample: { size: 1 } }])
       .forEach(doc =>
         res.status(200).send({
-          url: `https://sloths.s3.amazonaws.com/confirmedsloths/${doc.s3Name.toString()}`,
+          url: doc.url,
           width: doc.width,
           height: doc.height,
           labels: doc.labels,
