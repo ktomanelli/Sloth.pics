@@ -9,7 +9,6 @@ window.addEventListener('DOMContentLoaded', () => {
       const imgTag = document.createElement('img');
       const fig = document.createElement('figure');
       const figCap = document.createElement('figcaption');
-      console.log(data);
       imgLink.href = data.url;
       imgTag.id = 'sloth';
       imgTag.src = data.url;
