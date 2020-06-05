@@ -54,6 +54,20 @@ function getRandom(req, res, next) {
           width: doc.width,
           height: doc.height,
           labels: doc.labels,
+          creator: doc.creator,
+          creator_url: doc.creator_url,
+          detail_url: doc.detail_url,
+          fields_matched: doc.fields_matched,
+          foreign_landing_url: doc.foreign_landing_url,
+          id: doc.id,
+          license: doc.license,
+          license_url: doc.license_url,
+          license_version: doc.license_version,
+          related_url: doc.related_url,
+          source: doc.source,
+          tags: doc.tags,
+          thumbnail: doc.thumbnail,
+          title: doc.title,
         })
       );
   });

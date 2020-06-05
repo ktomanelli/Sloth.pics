@@ -1,16 +1,21 @@
 require('dotenv').config();
-const base64 = require('node-base64-image');
-const gis = require('g-i-s');
+const axios = require('axios');
 const download = require('image-downloader');
 const aws = require('./aws');
 
 // runs google image search for 'sloth' and returns images array
 function collectSloths() {
   return new Promise((resolve, reject) =>
-    gis('sloth', (err, res) => {
-      if (err) reject(err);
-      return resolve(res);
-    })
+    axios
+      .get(
+        'https://api.creativecommons.engineering/v1/images/?q=sloth&page_size=500'
+      )
+      .then(res => {
+        resolve(res.data.results);
+      })
+      .catch(e => {
+        reject(e);
+      })
   );
 }
 function downloadImage(url, dest) {
@@ -27,26 +32,6 @@ function downloadImage(url, dest) {
     .catch(err => console.error(err));
 }
 
-// download image from url and encodes as base64 string
-function downloadAndEncode(url) {
-  const options = {
-    string: true,
-    headers: {
-      'User-Agent': 'Sloth.Pics',
-    },
-  };
-  try {
-    return base64.encode(url, options);
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-// accepts a base64 string and decodes to a jpg
-async function decode(str, fname, ext = 'jpg') {
-  return base64.decode(str, { fname, ext });
-}
-
 async function downloadAndUploadToS3(sloth) {
   if (await downloadImage(sloth.url, './temp/image.jpg')) {
     const uniqeName = await aws.uploadPic('./temp/image.jpg');
@@ -61,8 +46,8 @@ async function downloadAndUploadToS3(sloth) {
 }
 
 async function startCollecting() {
+  console.log('fuk');
   const sloths = await collectSloths();
-
   for (let i = 0; i < sloths.length; i += 1) {
     try {
       await downloadAndUploadToS3(sloths[i]);
@@ -71,3 +56,6 @@ async function startCollecting() {
     }
   }
 }
+
+startCollecting();
+// collectSloths();

@@ -11,11 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.686.0",
+    "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "g-i-s": "^2.1.5",
     "image-downloader": "^4.0.1",
-    "mongodb": "^3.5.8",
-    "node-base64-image": "^2.0.1"
+    "mongodb": "^3.5.8"
   }
 }
