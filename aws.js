@@ -75,6 +75,7 @@ function getLabels(s3Name) {
 }
 
 function uploadPic(filePath) {
+  console.log('inside uploadPic');
   const uniqeName = Date.now();
   const fileContent = fs.readFileSync(filePath);
   const params = {

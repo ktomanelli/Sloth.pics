@@ -4,11 +4,11 @@ const download = require('image-downloader');
 const aws = require('./aws');
 
 // runs google image search for 'sloth' and returns images array
-function collectSloths() {
+function collectSloths(i) {
   return new Promise((resolve, reject) =>
     axios
       .get(
-        'https://api.creativecommons.engineering/v1/images/?q=sloth&page_size=500'
+        `https://api.creativecommons.engineering/v1/images/?q=sloth&page_size=500&page=${i}&mature=false`
       )
       .then(res => {
         resolve(res.data.results);
@@ -33,10 +33,13 @@ function downloadImage(url, dest) {
 }
 
 async function downloadAndUploadToS3(sloth) {
+  console.log(sloth.url);
   if (await downloadImage(sloth.url, './temp/image.jpg')) {
     const uniqeName = await aws.uploadPic('./temp/image.jpg');
     sloth.s3Name = `${uniqeName}.jpg`;
+    console.log('getting labels');
     const labels = await aws.getLabels(sloth.s3Name);
+
     if (await aws.checkIfSloth(labels, sloth)) {
       // console.log(sloth.s3Name);
       await aws.copyObj(sloth.s3Name);
@@ -46,8 +49,10 @@ async function downloadAndUploadToS3(sloth) {
 }
 
 async function startCollecting() {
-  console.log('fuk');
-  const sloths = await collectSloths();
+  const sloths = [];
+  for (let i = 1; i < 4; i += 1) {
+    sloths.push(...(await collectSloths(i)));
+  }
   for (let i = 0; i < sloths.length; i += 1) {
     try {
       await downloadAndUploadToS3(sloths[i]);
